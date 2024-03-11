@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: hello-world-app
+  namespace: assignment
+spec:
+  gateways:
+  - hello-world-app-gateway
+  hosts:
+  - '*'
+  http:
+  - match:
+    - uri:
+        exact: /
+    - uri:
+        prefix: /health-check
+    route:
+    - destination:
+        host: hello-world-app
+        port:
+          number: 9080

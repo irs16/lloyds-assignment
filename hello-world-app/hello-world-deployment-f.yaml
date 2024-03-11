@@ -1,0 +1,63 @@
+
+
+##################################################################################################
+# hello-world-app services
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-world-app 
+  labels:
+    app: hello-world-app
+    service: hello-world-app
+spec:
+  ports:
+  - port: 9080
+    name: http
+  selector:
+    app: hello-world-app
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bi-hello-world-app
+  labels:
+    account: hello-world-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-app-v1
+  labels:
+    app: hello-world-app
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-world-app
+      version: v1
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9080"
+        prometheus.io/path: "/health-check"
+      labels:
+        app: hello-world-app
+        version: v1
+    spec:
+      serviceAccountName: bi-hello-world-app
+      containers:
+      - name: hello-world-app
+        image: gcr.io/lloyds-assignment/assignment/hello-world-app:1.2
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+---
